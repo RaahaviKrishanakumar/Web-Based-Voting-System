@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>COO Panel - Voting Sessions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { width: 250px; min-height: 100vh; background: #212529; color: white; position: fixed; }
+        .sidebar a { display: block; padding: 12px 20px; color: white; text-decoration: none; }
+        .sidebar a:hover, .sidebar a.active { background: #343a40; }
+        .content { margin-left: 250px; padding: 20px; }
+        .card { border-radius: 12px; margin-bottom: 20px; }
+        .winner-img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h3 class="text-center py-3">📊 COO Panel</h3>
+    <a th:href="@{/coo/voting_sessions}" class="active"><i class="bi bi-bar-chart-line"></i> Voting Sessions</a>
+    <a th:href="@{/logout}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+</div>
+
+<div class="content">
+    <h2 class="mb-4"><i class="bi bi-bar-chart-line"></i> Manage Voting Sessions</h2>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <div th:if="${noActiveEvent}" class="alert alert-warning">
+        ⚠️ There is no active event. Please ask the Event Manager to create or activate one.
+    </div>
+
+    <div th:if="${!noActiveEvent}">
+
+        <div class="card shadow p-4">
+            <h5 th:text="'Voting Session for: ' + ${event.name}">Voting Session</h5>
+            <div class="d-flex gap-3 flex-wrap mt-2">
+                <form th:action="@{/coo/session/start}" method="post">
+                    <input type="hidden" name="eventId" th:value="${event.id}" />
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-play-circle"></i> Start Voting
+                    </button>
+                </form>
+                <form th:action="@{/coo/session/restart}" method="post" onsubmit="return confirm('⚠️ Are you sure you want to restart? This will clear all votes!');">
+                    <input type="hidden" name="eventId" th:value="${event.id}" />
+                    <div class="d-flex gap-2 align-items-center">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-arrow-clockwise"></i> Restart Session
+                        </button>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="clearVotes" id="clearVotes" required>
+                            <label class="form-check-label" for="clearVotes">Clear all votes</label>
+                        </div>
+                    </div>
+                </form>
+                <form th:action="@{/coo/session/end}" method="post" onsubmit="return confirm('🛑 Are you sure you want to end the session?');">
+                    <input type="hidden" name="eventId" th:value="${event.id}" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-stop-circle"></i> End Voting
+                    </button>
+                </form>
+            </div>
+            <p class="mt-3">
+                <strong>Status:</strong>
+                <span th:text="${sessionStatus}"
+                      th:classappend="${sessionStatus == 'ONGOING' ? 'badge bg-success' : (sessionStatus == 'ENDED' ? 'badge bg-secondary' : 'badge bg-warning text-dark')}">
+                </span>
+            </p>
+        </div>
+
+        <div class="card shadow p-4">
+            <h5>Live Results</h5>
+            <div class="mb-3">
+                <label class="form-label">Select Category</label>
+                <select class="form-select" id="categorySelect">
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.name}"
+                            th:selected="${defaultCategoryId != null and cat.id == defaultCategoryId}">
+                    </option>
+                </select>
+            </div>
+            <table class="table table-bordered table-striped" id="resultsTable" style="display:none;">
+                <thead class="table-dark">
+                <tr>
+                    <th>Nominee</th>
+                    <th>Votes</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div id="leaderInfo" class="alert alert-info mt-3" style="display:none;"></div>
+        </div>
+
+        <div class="card shadow p-4">
+            <h5>Declare Winners</h5>
+            <form class="row g-3" th:action="@{/coo/winners}" method="post" enctype="multipart/form-data">
+                <div class="col-md-6">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="categoryId" required>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Winner Nominee</label>
+                    <select class="form-select" name="winnerId" required>
+                        <option th:each="nom : ${approvedNominees}"
+                                th:value="${nom.id}" th:text="${nom.name}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Upload Winner Image</label>
+                    <input type="file" class="form-control" name="winnerImage" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-trophy"></i> Save Winner</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card shadow p-4">
+            <h5 class="mb-3">Declared Winners</h5>
+            <div th:if="${!#lists.isEmpty(declaredWinners)}" class="alert alert-warning mb-3">
+                <p class="mb-2">You have declared winners that are not yet public. Review them below, then submit them for final publication by the PRO.</p>
+                <form th:action="@{/coo/winners/submit-for-review}" method="post" onsubmit="return confirm('Submit all new winners for review? This action cannot be undone.');">
+                    <input type="hidden" name="eventId" th:value="${event.id}" />
+                    <button type="submit" class="btn btn-info"><i class="bi bi-send"></i> Submit All New Winners for Review</button>
+                </form>
+            </div>
+            <div th:if="${!#lists.isEmpty(pendingWinners)}" class="alert alert-info">
+                <i class="bi bi-check-circle-fill"></i> You have winners that are currently awaiting publication by the PRO.
+            </div>
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>#</th><th>Category</th><th>Winner</th><th>Image</th><th>Status</th><th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(winners)}">
+                    <td colspan="6" class="text-center text-muted">No winners have been declared yet.</td>
+                </tr>
+                <tr th:each="w, iStat : ${winners}">
+                    <td th:text="${iStat.index + 1}"></td>
+                    <td th:text="${w.category.name}"></td>
+                    <td th:text="${w.nominee.name}"></td>
+                    <td>
+                        <img th:if="${w.imagePath}" th:src="@{${w.imagePath}}" class="winner-img" alt="winner">
+                        <span th:if="${w.imagePath == null}" class="text-muted">No image</span>
+                    </td>
+                    <td>
+                        <span th:text="${w.status}"
+                              th:classappend="${w.status == 'DECLARED'} ? 'badge bg-warning text-dark' : (${w.status == 'PENDING_REVIEW'} ? 'badge bg-info' : 'badge bg-success')">
+                        </span>
+                    </td>
+                    <td>
+                        <div th:if="${w.status != 'PUBLISHED'}">
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" th:data-bs-target="'#editWinnerModal-' + ${w.id}"><i class="bi bi-pencil-square"></i> Edit</button>
+                            <form th:action="@{'/coo/winners/' + ${w.id} + '/delete'}" method="post" class="d-inline" onsubmit="return confirm('Delete this winner declaration?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </div>
+                        <span th:if="${w.status == 'PUBLISHED'}" class="text-muted fst-italic">Published</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card shadow p-4">
+            <h5 class="mb-3"><i class="bi bi-file-earmark-arrow-down"></i> Generate Reports</h5>
+            <p class="text-muted">Generate a summary report containing the voter demographics for the current event.</p>
+            <form th:action="@{/coo/reports/generate-voter-demographics}" method="post">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-download"></i> Generate Voter Demographics Report</button>
+            </form>
+            <div th:if="${reportMessage}" class="alert alert-info mt-3 mb-0" th:text="${reportMessage}"></div>
+        </div>
+
+        <div th:each="w : ${winners}" th:id="'editWinnerModal-' + ${w.id}" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{'/coo/winners/' + ${w.id} + '/update'}" method="post" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Winner</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" name="categoryId" required>
+                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${cat.id == w.category.id}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Winner Nominee (Approved only)</label>
+                                <select class="form-select" name="winnerId" required>
+                                    <option th:each="nom : ${approvedNominees}" th:value="${nom.id}" th:text="${nom.name}" th:selected="${nom.id == w.nominee.id}"></option>
+                                </select>
+                                <small class="text-muted">Tip: choose a nominee for the selected category.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Change Image</label>
+                                <input type="file" name="winnerImage" class="form-control" accept="image/*">
+                                <div class="mt-2" th:if="${w.imagePath}">
+                                    <img th:src="@{${w.imagePath}}" class="winner-img" alt="current">
+                                    <small class="text-muted ms-2">Current image</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    function loadResults(categoryId) {
+        if (!categoryId) return;
+        fetch(`/coo/live-results?categoryId=${categoryId}`)
+            .then(res => res.json())
+            .then(data => {
+                const table = document.getElementById('resultsTable');
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = "";
+
+                if (data.length === 0) {
+                    table.style.display = "none";
+                    document.getElementById('leaderInfo').style.display = "none";
+                    return;
+                }
+
+                data.forEach(d => {
+                    const row = `<tr><td>${d.nominee}</td><td>${d.votes}</td></tr>`;
+                    tbody.insertAdjacentHTML("beforeend", row);
+                });
+
+                table.style.display = "table";
+
+                let leader = data.reduce((max, obj) => obj.votes > max.votes ? obj : max, data[0]);
+                const leaderInfo = document.getElementById('leaderInfo');
+                leaderInfo.textContent = `🏆 Current Leader: ${leader.nominee} with ${leader.votes} votes`;
+                leaderInfo.style.display = "block";
+            });
+    }
+
+    document.getElementById('categorySelect')?.addEventListener('change', function() {
+        loadResults(this.value);
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        const defaultCategoryId = /*[[${defaultCategoryId}]]*/ null;
+        if (defaultCategoryId) {
+            const select = document.getElementById('categorySelect');
+            if(select) {
+                select.value = defaultCategoryId;
+                loadResults(defaultCategoryId);
+            }
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

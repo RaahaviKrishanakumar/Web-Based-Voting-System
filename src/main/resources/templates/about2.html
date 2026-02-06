@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About - Music Awards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="main-container d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a th:href="@{/userdashboard}">Home</a>
+        <a th:href="@{/vote}">Vote Now</a>
+        <a th:href="@{/winners}">Winners</a>
+        <a th:href="@{/about2}">About</a>
+        <a th:href="@{/profile}">My Profile</a>
+        <a th:href="@{/userfeedback}">Feedback</a>
+        <a th:href="@{/logout}" class="btn btn-outline-light mt-3">Logout</a>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header Image -->
+        <div class="about-header"
+             style="position:relative; height:50vh; background:url('/images/about.jpg') center/cover no-repeat; display:flex; align-items:flex-end; padding:30px;">
+            <h1 class="text-white fw-bold p-2 rounded"
+                style="background:rgba(0,0,0,0.4); font-size:60px;">
+                About
+            </h1>
+        </div>
+
+        <!-- About Content -->
+        <div class="about-content p-4">
+            <p th:text="${aboutText}">
+                The 2025 Music Awards, the world’s largest fan-voted music awards show, celebrates the best
+                in global music. Fans from around the world participate by casting their votes to support
+                their favorite artists.
+            </p>
+            <p>
+                The ceremony brings together live performances, special tributes, and unforgettable moments
+                to honor artists who shaped the year in music.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-3 border-top bg-light">
+            <h5>🎵 Music Awards</h5>
+            <p class="text-muted mb-0">Copyright 2025. All rights reserved.</p>
+        </footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+>

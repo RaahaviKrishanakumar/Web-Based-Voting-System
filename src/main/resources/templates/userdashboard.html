@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Aureus Music Awards</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+
+<!-- Main Container -->
+<div class="main-container d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Aureus Music Awards</h2>
+        <a th:href="@{/userdashboard}">Home</a>
+        <a th:href="@{/vote}">Vote Now</a>
+        <a th:href="@{/winners}">Winners</a>
+        <a th:href="@{/about2}">About</a>
+        <a th:href="@{/profile}">My Profile</a>
+        <a th:href="@{/userfeedback}">Feedback</a>
+        <a th:href="@{/logout}" class="btn btn-outline-light mt-3">Logout</a>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+        <!-- Carousel -->
+        <div class="carousel-container">
+            <div id="eventCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active" data-bs-interval="3000">
+                        <img th:src="@{/images/taylor3.jpg}" class="d-block w-100" alt="Slide 1">
+                    </div>
+                    <div class="carousel-item" data-bs-interval="3000">
+                        <img th:src="@{/images/coldplay.jpg}" class="d-block w-100" alt="Slide 2">
+                    </div>
+                    <div class="carousel-item" data-bs-interval="3000">
+                        <img th:src="@{/images/bruno.jpeg}" class="d-block w-100" alt="Slide 3">
+                    </div>
+                    <div class="carousel-item" data-bs-interval="3000">
+                        <img th:src="@{/images/gaga.jpg}" class="d-block w-100" alt="Slide 4">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#eventCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#eventCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+
+            <!-- Event Title -->
+            <div class="event-title">
+                AUREUS MUSIC AWARDS
+            </div>
+        </div>
+
+        <!-- Latest News -->
+        <section class="latest-news">
+            <h2 class="text-center mb-4">Latest News</h2>
+            <div class="row g-4">
+
+                <div class="col-md-4" th:each="newsItem : ${newsItems}">
+                    <div class="card news-card h-100 shadow-sm">
+                        <div th:utext="${newsItem.render()}"></div>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(newsItems)}" class="col-12 text-center">
+                    <p class="text-muted">No news available at the moment.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-3 border-top">
+            <h5>🎵 Aureus Music Awards</h5>
+            <p class="text-muted mb-0">Copyright 2025. All rights reserved.</p>
+        </footer>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

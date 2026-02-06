@@ -1,0 +1,52 @@
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+}
+
+.profile-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.form-control, .form-select {
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+}
+
+.btn {
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 0.875rem 1.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border: none;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: none;
+}
+
+.danger-zone {
+    border: 2px solid #fecaca;
+    background: #fef2f2;
+}

@@ -1,0 +1,119 @@
+/* Floating alert box */
+.alert-container {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    z-index: 2000;
+    max-width: 400px;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #212529;
+    color: white;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 20px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    font-size: 22px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+
+.sidebar a,
+.sidebar button {
+    display: block;
+    margin: 15px 0;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.sidebar a:hover {
+    text-decoration: underline;
+    color: #f1c40f; /* Gold hover accent */
+}
+
+/* Content area */
+.content-area {
+    margin-left: 250px; /* same as sidebar width */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Event title (big centered) */
+.event-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 70px;
+    font-weight: 900;
+    color: white;
+    text-align: center;
+    z-index: 10;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.6);
+}
+
+/* Carousel images */
+.carousel-item img {
+    height: 100vh;
+    width: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+}
+
+/* Footer */
+footer {
+    background: #f8f9fa;
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+    .content-area {
+        margin-left: 200px;
+    }
+    .event-title {
+        font-size: 50px;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+    }
+    .content-area {
+        margin-left: 0;
+    }
+    .main-container {
+        flex-direction: column;
+    }
+    .carousel-item img {
+        height: 50vh;
+    }
+    .event-title {
+        font-size: 30px;
+    }
+}

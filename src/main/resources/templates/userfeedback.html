@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Feedback - Music Awards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; margin: 0; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #212529;
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar a,
+        .sidebar button {
+            display: block;
+            margin: 15px 0;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline;
+            color: #fff;
+        }
+
+        /* Main content */
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        .card { border-radius: 12px; margin-bottom: 20px; }
+        .rating { color: #ffc107; }
+        .reply-box { margin-left: 40px; }
+    </style>
+</head>
+<body>
+
+<div class="main-container d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>🎵 Music Awards</h2>
+        <a th:href="@{/userdashboard}">Home</a>
+        <a th:href="@{/vote}">Vote Now</a>
+        <a th:href="@{/winners}">Winners</a>
+        <a th:href="@{/about}">About</a>
+        <a th:href="@{/profile}">My Profile</a>
+        <a th:href="@{/logout}" class="btn btn-outline-light mt-3">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h2 class="mb-4"><i class="bi bi-chat-dots"></i> Feedback</h2>
+
+        <!-- Show event -->
+        <div th:if="${noEvent}" class="alert alert-warning">⚠️ No active event available for feedback.</div>
+        <div th:if="${!noEvent}">
+            <h5 class="mb-3">Active Event: <span th:text="${event.name}"></span></h5>
+
+            <!-- Add Feedback Form -->
+            <!-- Add Feedback Form -->
+            <div class="card shadow p-3 mb-4">
+                <form th:action="@{/userfeedback/add}" method="post" class="row g-3" id="feedbackForm">
+                    <div class="col-md-8">
+            <textarea class="form-control" name="message" rows="2"
+                      placeholder="Write your feedback (10–500 characters)..."
+                      minlength="10" maxlength="500" required></textarea>
+                        <div class="form-text"><span id="charCount">0</span>/500</div>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="rating" class="form-select" required>
+                            <option value="" disabled selected>Choose ⭐</option>
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="3">⭐⭐⭐</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="1">⭐</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button class="btn btn-primary"><i class="bi bi-send"></i> Post</button>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                (function() {
+                    const ta = document.querySelector('#feedbackForm textarea[name="message"]');
+                    const counter = document.getElementById('charCount');
+                    function update() { counter.textContent = ta.value.length; }
+                    ta.addEventListener('input', update);
+                    update();
+                })();
+            </script>
+
+
+            <!-- List Feedback -->
+            <div class="card shadow p-4">
+                <h5>All Feedback</h5>
+                <div th:if="${#lists.isEmpty(feedbackList)}" class="text-muted">No feedback yet.</div>
+
+                <div th:each="f : ${feedbackList}" class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <h6><i class="bi bi-person-circle"></i> <span th:text="${f.user.name}"></span>
+                            <span class="text-muted">· <span th:text="${#temporals.format(f.createdAt, 'yyyy-MM-dd HH:mm')}"></span></span>
+                        </h6>
+                        <span class="rating" th:text="${'⭐'.repeat(f.rating)}"></span>
+                    </div>
+                    <p th:text="${f.message}"></p>
+
+                    <!-- User’s own feedback: show edit/delete -->
+                    <div th:if="${f.user != null and f.user.email == #authentication.name}">
+                        <form th:action="@{|/userfeedback/${f.id}/delete|}" method="post" class="d-inline"
+                              onsubmit="return confirm('Delete this feedback?');">
+                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" th:data-bs-target="'#editModal_' + ${f.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+
+                    <!-- Admin Reply -->
+                    <div th:if="${f.reply != null}" class="reply-box mt-2">
+                        <span class="badge bg-primary"><i class="bi bi-shield-check"></i> Admin Reply</span>
+                        <p class="mb-0" th:text="${f.reply}"></p>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal for each feedback -->
+<div th:each="f : ${feedbackList}" class="modal fade" th:id="'editModal_' + ${f.id}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{|/userfeedback/${f.id}/edit|}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Feedback</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" name="message" rows="3" th:text="${f.message}"></textarea>
+                    <select name="rating" class="form-select mt-2">
+                        <option th:value="5" th:selected="${f.rating == 5}">⭐⭐⭐⭐⭐</option>
+                        <option th:value="4" th:selected="${f.rating == 4}">⭐⭐⭐⭐</option>
+                        <option th:value="3" th:selected="${f.rating == 3}">⭐⭐⭐</option>
+                        <option th:value="2" th:selected="${f.rating == 2}">⭐⭐</option>
+                        <option th:value="1" th:selected="${f.rating == 1}">⭐</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Vote - ' + ${category.name}"></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-header {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .page-header h2 {
+      color: #1a1a2e;
+      font-weight: 700;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .category-badge {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      display: inline-block;
+    }
+
+    .nominee-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      transition: all 0.4s ease;
+      overflow: hidden;
+      height: 100%;
+      position: relative;
+    }
+
+    .nominee-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .nominee-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    .nominee-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .nominee-card .card-img-top {
+      height: 280px;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .nominee-card:hover .card-img-top {
+      transform: scale(1.05);
+    }
+
+    .nominee-card .card-body {
+      padding: 25px;
+    }
+
+    .nominee-card .card-title {
+      color: #1a1a2e;
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+    }
+
+    .nominee-card .card-text {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+
+    .vote-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      width: 100%;
+      font-size: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vote-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .vote-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .vote-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .vote-btn i {
+      margin-right: 8px;
+    }
+
+    .back-btn {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      color: #1a1a2e;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      background: white;
+    }
+
+    .alert {
+      border-radius: 15px;
+      border: none;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      font-weight: 500;
+    }
+
+    .alert-danger {
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+    }
+
+    .alert-success {
+      background: rgba(25, 135, 84, 0.9);
+      color: white;
+    }
+
+    .alert-warning {
+      background: rgba(255, 193, 7, 0.9);
+      color: #1a1a2e;
+    }
+
+    .no-nominees {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .no-nominees i {
+      font-size: 4rem;
+      color: #ffc107;
+      margin-bottom: 20px;
+    }
+
+    .no-nominees h4 {
+      color: #1a1a2e;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .no-nominees p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .nominees-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .nominees-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header h2 {
+        font-size: 1.5rem;
+        flex-direction: column;
+      }
+    }
+
+    /* Animation for cards on load */
+    .nominee-card {
+      animation: slideInUp 0.6s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .nominee-card:nth-child(1) { animation-delay: 0.1s; }
+    .nominee-card:nth-child(2) { animation-delay: 0.2s; }
+    .nominee-card:nth-child(3) { animation-delay: 0.3s; }
+    .nominee-card:nth-child(4) { animation-delay: 0.4s; }
+    .nominee-card:nth-child(5) { animation-delay: 0.5s; }
+    .nominee-card:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes slideInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-5">
+  <div class="page-header">
+    <h2>
+      <i class="bi bi-award"></i>
+      Vote in Category:
+      <span class="category-badge" th:text="${category.name}">Category</span>
+    </h2>
+  </div>
+
+  <!-- Flash messages -->
+  <div th:if="${error}" class="alert alert-danger d-flex align-items-center">
+    <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+    <span th:text="${error}"></span>
+  </div>
+  <div th:if="${success}" class="alert alert-success d-flex align-items-center">
+    <i class="bi bi-check-circle-fill me-3" style="font-size: 1.5rem;"></i>
+    <span th:text="${success}"></span>
+  </div>
+
+  <!-- Nominees Grid -->
+  <div class="nominees-grid" th:if="${#lists.isEmpty(nominees) == false}">
+    <div th:each="nom : ${nominees}">
+      <div class="card nominee-card">
+        <img th:src="@{${nom.imagePath}}" class="card-img-top" alt="Nominee Image">
+        <div class="card-body">
+          <h5 class="card-title" th:text="${nom.name}">Nominee Name</h5>
+          <p class="card-text" th:text="${nom.description}">Nominee description...</p>
+
+          <!-- Vote form -->
+          <form th:action="@{/vote/submit}" method="post">
+            <input type="hidden" name="categoryId" th:value="${category.id}" />
+            <input type="hidden" name="nomineeId" th:value="${nom.id}" />
+            <input type="hidden" name="voterId" th:value="${#authentication.name}" />
+            <button type="submit" class="vote-btn">
+              <i class="bi bi-hand-thumbs-up"></i>
+              Cast Your Vote
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No nominees -->
+  <div th:if="${#lists.isEmpty(nominees)}" class="no-nominees">
+    <i class="bi bi-exclamation-circle"></i>
+    <h4>No Nominees Available</h4>
+    <p>There are currently no approved nominees in this category. Please check back later!</p>
+  </div>
+
+  <div class="text-center">
+    <a th:href="@{/vote}" class="back-btn">
+      <i class="bi bi-arrow-left"></i> Back to Categories
+    </a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Add ripple effect to vote buttons
+  document.addEventListener('DOMContentLoaded', function() {
+    const voteButtons = document.querySelectorAll('.vote-btn');
+
+    voteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        // Confirm vote action
+        if (!confirm('Are you sure you want to vote for this nominee?')) {
+          e.preventDefault();
+          return false;
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vote - Voting System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+    .sidebar { width: 250px; background: #212529; color: white; flex-shrink: 0; padding: 20px;
+      position: fixed; height: 100vh; }
+    .sidebar a { display: block; margin: 15px 0; color: white; text-decoration: none; font-size: 18px; }
+    .sidebar a:hover { text-decoration: underline; }
+    .content { margin-left: 280px; padding: 30px 40px; }
+    .page-header { background: rgba(255,255,255,0.95); padding: 25px 30px; border-radius: 20px; margin-bottom: 40px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .categories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+    .category-card { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 35px 25px; text-align: center;
+      transition: all 0.4s ease; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);
+      position: relative; overflow: hidden; }
+    .category-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+    .category-icon { width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: white; }
+    .vote-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none;
+      padding: 12px 25px; border-radius: 25px; font-weight: 600; text-transform: uppercase;
+      font-size: 0.9rem; transition: all 0.3s ease; }
+    .vote-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h3 class="text-center py-4">🎵 Voting System</h3>
+  <a th:href="@{/userdashboard}"><i class="bi bi-house-door"></i> Home</a>
+  <a th:href="@{/vote2}" class="active"><i class="bi bi-check2-square"></i> Vote</a>
+  <a th:href="@{/winners}"><i class="bi bi-trophy"></i> Winners</a>
+  <a th:href="@{/about}"><i class="bi bi-info-circle"></i> About</a>
+</div>
+
+<!-- Main Content -->
+<div class="content">
+  <div class="page-header">
+    <h2><i class="bi bi-check2-square me-3"></i>Cast Your Vote</h2>
+  </div>
+
+  <!-- Flash messages -->
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+  <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+  <!-- Categories Grid -->
+  <div class="categories-grid" th:if="${#lists.isEmpty(categories) == false}">
+    <div class="category-card" th:each="cat : ${categories}">
+      <div class="category-icon"><i class="bi bi-music-note-list"></i></div>
+      <h5 th:text="${cat.name}">Category Name</h5>
+      <a th:href="@{/vote/category/{id}(id=${cat.id})}" class="btn vote-btn">Vote Now</a>
+    </div>
+  </div>
+
+  <!-- No categories -->
+  <div th:if="${#lists.isEmpty(categories)}" class="alert alert-warning">
+    ⚠ No categories available for voting right now.
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

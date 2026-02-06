@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - News Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="sidebar">
+  <h3 class="text-center py-3">🎵 Admin Panel</h3>
+  <a th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+  <a th:href="@{/admin/eventmanage}"><i class="bi bi-calendar-event"></i> Event Management</a>
+  <a th:href="@{/admin/news}" class="active"><i class="bi bi-newspaper"></i> News Management</a>
+  <a th:href="@{/hr/nominees}"><i class="bi bi-mic"></i> Nominee Management</a>
+  <a th:href="@{/coo/voting_sessions}"><i class="bi bi-bar-chart-line"></i> Voting Results</a>
+  <a th:href="@{/pro/feedback}"><i class="bi bi-chat-dots"></i> Feedback</a>
+  <a th:href="@{/fm/finance}"><i class="bi bi-cash-stack"></i> Finance Management</a>
+</div>
+
+<div class="content">
+  <div class="topbar d-flex justify-content-between align-items-center">
+    <h4>News Management</h4>
+    <div>
+      <span class="me-3"><i class="bi bi-person-circle"></i> Admin</span>
+      <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm">Logout</a>
+    </div>
+  </div>
+
+  <div class="container-fluid mt-4">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="card shadow p-4">
+      <h5 class="mb-3">Add New Story</h5>
+      <form th:action="@{/admin/news/add}" method="post">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" id="title" name="title" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label for="newsType" class="form-label">News Type</label>
+            <select id="newsType" name="type" class="form-select" required>
+              <option value="STANDARD" selected>Standard Article (Opens internal page)</option>
+              <option value="EXTERNAL_LINK">External Link (Opens Spotify, YouTube, etc.)</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label for="summary" class="form-label">Summary</label>
+            <input type="text" id="summary" name="summary" class="form-control"
+                   placeholder="A short description for the card view" required maxlength="500">
+          </div>
+          <div class="col-12">
+            <label for="imageUrl" class="form-label">Image URL</label>
+            <input type="url" id="imageUrl" name="imageUrl" class="form-control" placeholder="https://..." required>
+          </div>
+          <div class="col-12" id="content-section">
+            <label for="content" class="form-label">Full Content</label>
+            <textarea id="content" name="content" class="form-control" rows="6" required></textarea>
+          </div>
+          <div class="col-12" id="external-url-section" style="display: none;">
+            <label for="externalUrl" class="form-label">External URL (e.g., Spotify Playlist)</label>
+            <input type="url" id="externalUrl" name="externalUrl" class="form-control" placeholder="https://spotify.com/playlist/...">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Publish News</button>
+      </form>
+    </div>
+
+    <div class="card shadow p-4 mt-5">
+      <h5 class="mb-3">Existing News</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:if="${#lists.isEmpty(newsList)}">
+            <td colspan="4" class="text-center text-muted">No news has been added yet.</td>
+          </tr>
+          <tr th:each="news : ${newsList}">
+            <td th:text="${news.id}">1</td>
+            <td th:text="${news.title}">News Title</td>
+            <td th:text="${news.type}">STANDARD</td>
+            <td>
+              <form th:action="@{/admin/news/delete/{id}(id=${news.id})}" method="post"
+                    onsubmit="return confirm('Are you sure you want to delete this news item?');">
+                <button type="submit" class="btn btn-sm btn-danger">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const newsTypeSelect = document.getElementById('newsType');
+    const contentSection = document.getElementById('content-section');
+    const externalUrlSection = document.getElementById('external-url-section');
+    const contentInput = document.getElementById('content');
+    const externalUrlInput = document.getElementById('externalUrl');
+
+    function toggleSections() {
+      if (newsTypeSelect.value === 'STANDARD') {
+        contentSection.style.display = 'block';
+        contentInput.required = true;
+        externalUrlSection.style.display = 'none';
+        externalUrlInput.required = false;
+      } else {
+        contentSection.style.display = 'none';
+        contentInput.required = false;
+        externalUrlSection.style.display = 'block';
+        externalUrlInput.required = true;
+      }
+    }
+    toggleSections();
+    newsTypeSelect.addEventListener('change', toggleSections);
+  });
+</script>
+
+</body>
+</html>

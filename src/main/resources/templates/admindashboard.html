@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Voting System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h3 class="text-center py-3">🎵 Admin Panel</h3>
+    <a th:href="@{/admin/dashboard}" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a th:href="@{/admin/eventmanage}"><i class="bi bi-calendar-event"></i> Event Management</a>
+    <a th:href="@{/hr/nominees}"><i class="bi bi-mic"></i> Nominee Management</a>
+    <a th:href="@{/coo/voting_sessions}"><i class="bi bi-bar-chart-line"></i> Voting Results</a>
+    <a th:href="@{/pro/feedback}"><i class="bi bi-chat-dots"></i> Feedback</a>
+    <a th:href="@{/fm/finance}"><i class="bi bi-cash-stack"></i> Finance Management</a>
+    <a th:href="@{/admin/news}"><i class="bi bi-newspaper"></i> News Management</a>
+</div>
+
+<!-- Main Content -->
+<div class="content">
+    <!-- Topbar -->
+    <div class="topbar d-flex justify-content-between align-items-center">
+        <h4>Admin Dashboard</h4>
+        <div>
+            <span class="me-3"><i class="bi bi-person-circle"></i> Admin</span>
+            <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center shadow p-3">
+                <h5>Total Users</h5>
+                <h2 th:text="${totalUsers}">0</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow p-3">
+                <h5>Total Categories</h5>
+                <h2 th:text="${totalCategories}">0</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow p-3">
+                <h5>Total Votes</h5>
+                <h2 th:text="${totalVotes}">0</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow p-3">
+                <h5>Active Event</h5>
+                <h2 th:text="${activeEvent}">No Active Event</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mt-5">
+        <!-- Pie Chart -->
+        <div class="col-md-6">
+            <div class="card shadow p-4">
+                <h5 class="text-center">Votes per Category</h5>
+                <canvas id="categoryPieChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="col-md-6">
+            <div class="card shadow p-4">
+                <h5 class="text-center">Leading Nominee per Category</h5>
+                <canvas id="leaderBarChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap + Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!--  Pass server-side data into JS -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const votesPerCategory = /*[[${votesPerCategory}]]*/ {};
+    const leadingNominee = /*[[${leadingNominee}]]*/ {};
+
+    // Extract labels and values for pie chart
+    const categoryLabels = Object.keys(votesPerCategory);
+    const categoryVotes = Object.values(votesPerCategory);
+
+    // Extract labels and values for bar chart
+    const leaderLabels = Object.keys(leadingNominee);
+    const leaderVotes = Object.values(leadingNominee).map(item => {
+        let match = item.match(/\((\d+)\)$/); // extract number from "Name (count)"
+        return match ? parseInt(match[1]) : 0;
+    });
+    /*]]>*/
+
+    // Pie Chart - Votes per Category
+    const ctx1 = document.getElementById('categoryPieChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'pie',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryVotes,
+                backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545','#6f42c1','#20c997','#17a2b8','#ff5733']
+            }]
+        }
+    });
+
+    // Bar Chart - Leading Nominee per Category
+    const ctx2 = document.getElementById('leaderBarChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: leaderLabels,
+            datasets: [{
+                label: 'Votes (Leading Nominee)',
+                data: leaderVotes,
+                backgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

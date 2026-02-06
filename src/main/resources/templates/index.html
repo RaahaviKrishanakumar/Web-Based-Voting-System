@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Voting System</title>
+    <title>Aureus Music Awards</title>
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -26,10 +26,9 @@
 <div class="main-container d-flex">
     <!-- Sidebar -->
     <div class="sidebar bg-dark text-white p-3">
-        <h2>🎵 Music Awards</h2>
+        <h2>Aureus Music Awards</h2>
         <a class="d-block text-white mt-3" th:href="@{/winners}">Winners</a>
         <a class="d-block text-white" th:href="@{/about}">About</a>
-        <a class="d-block text-white" th:href="@{/pastwinners}">Past Winners</a>
         <button class="btn btn-outline-light mt-3" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
     </div>
 
@@ -52,14 +51,14 @@
         </div>
 
         <!-- Event Title -->
-        <div class="event-title text-center text-white fw-bold"
-             style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:60px;">
-            <span th:text="${eventName}">Music Awards</span>
+        <div class="event-title text-center fw-bold"
+             style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:65px; color:white; letter-spacing:3px; text-transform:uppercase; text-shadow:0 0 15px rgba(0,0,0,0.8);">
+            AUREUS MUSIC AWARDS
         </div>
 
         <!-- Footer -->
         <footer class="text-center py-3 border-top bg-light">
-            <h5>🎵 Music Awards</h5>
+            <h5>🎵 Aureus Music Awards</h5>
             <p class="text-muted mb-0">Copyright 2025. All rights reserved.</p>
         </footer>
     </div>
@@ -74,14 +73,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form th:action="@{/login}" method="post">
+                <form th:action="@{/login}" method="post" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label>Email</label>
                         <input type="email" name="email" class="form-control" required>
+                        <div class="invalid-feedback">Please enter a valid email address.</div>
                     </div>
                     <div class="mb-3">
                         <label>Password</label>
                         <input type="password" name="password" class="form-control" required>
+                        <div class="invalid-feedback">Password is required.</div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Log In</button>
                 </form>
@@ -103,22 +104,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form th:action="@{/register}" method="post" th:object="${user}">
+                <form th:action="@{/register}" method="post" th:object="${user}" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label>Name</label>
                         <input type="text" th:field="*{name}" class="form-control" required>
+                        <div class="invalid-feedback">Name is required.</div>
                     </div>
                     <div class="mb-3">
                         <label>Email</label>
                         <input type="email" th:field="*{email}" class="form-control" required>
+                        <div class="invalid-feedback">Please enter a valid email address.</div>
                     </div>
                     <div class="mb-3">
                         <label>Password</label>
-                        <input type="password" th:field="*{password}" class="form-control" required>
+                        <input type="password" th:field="*{password}" class="form-control" required minlength="6">
+                        <div class="invalid-feedback">Password must be at least 6 characters.</div>
                     </div>
                     <div class="mb-3">
                         <label>Age</label>
                         <input type="number" th:field="*{age}" class="form-control" min="10" max="100" required>
+                        <div class="invalid-feedback">Please enter an age between 10 and 100.</div>
                     </div>
                     <div class="mb-3">
                         <label>Gender</label>
@@ -128,6 +133,7 @@
                             <option value="Female">Female</option>
                             <option value="Other">Other</option>
                         </select>
+                        <div class="invalid-feedback">Please select your gender.</div>
                     </div>
                     <div class="mb-3">
                         <label>Country</label>
@@ -140,6 +146,7 @@
                             <option value="Australia">Australia</option>
                             <option value="Other">Other</option>
                         </select>
+                        <div class="invalid-feedback">Please select your country.</div>
                     </div>
                     <button type="submit" class="btn btn-success w-100">Sign Up</button>
                 </form>
@@ -150,5 +157,22 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Bootstrap Form Validation Script -->
+<script>
+    (() => {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
 </body>
 </html>
